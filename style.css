@@ -21,7 +21,6 @@
 
 .dark .loader {
     --c: no-repeat linear-gradient(#fff 0 0);
-    background: var(--c), var(--c), #000;
 }
 
 .themeChange {
