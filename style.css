@@ -5,6 +5,14 @@
     box-sizing: border-box;
 }
 
+.main {
+    display: none;
+}
+
+.similarMoviesTitle {
+    display: none;
+}
+
 .loader {
     display: none;
     height: 14px;
@@ -144,6 +152,10 @@ nav button {
 .similarMoviesTitle {
     text-align: center;
     margin-bottom: 10px;
+}
+
+.similarMovies {
+    display: none;
 }
 
 .similarMovieCard {
