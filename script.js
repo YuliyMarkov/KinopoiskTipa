@@ -39,7 +39,6 @@ async function searchMovie() {
   loader.style.display = "block";
 
   let searchText = document.querySelector(".search input").value;
-  console.log(searchText);
 
   let response = await sendRequest("http://www.omdbapi.com/", "GET", {
     apikey: "ee82f70e",
@@ -53,9 +52,11 @@ async function searchMovie() {
     let main = document.querySelector(".main");
     main.style.display = "block";
     let movieTitle = document.querySelector(".movieTitle h2");
-    movieTitle.innerHTML = response.movieTitle;
+    movieTitle.innerHTML = response.Title;
     let movieImg = document.querySelector(".movieImg");
     movieImg.style.backgroundImage = `url(${response.Poster})`;
+
+    console.log(response)
 
     let detailsList = [
         "Genre",
