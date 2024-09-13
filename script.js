@@ -40,7 +40,7 @@ async function searchMovie() {
 
   let searchText = document.querySelector(".search input").value;
 
-  let response = await sendRequest("http://www.omdbapi.com/", "GET", {
+  let response = await sendRequest("https://www.omdbapi.com/", "GET", {
     apikey: "ee82f70e",
     t: searchText,
   });
