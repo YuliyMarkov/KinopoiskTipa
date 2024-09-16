@@ -3,33 +3,30 @@ let body = document.querySelector("body");
 
 changeThemeBtn.addEventListener("click", changeTheme);
 
-if (localStorage.getItem("theme") == "dark") {
+if (localStorage.getItem("theme") === "dark") {
   changeThemeBtn.classList.add("darkTheme");
   body.classList.add("dark");
 }
 
 function changeTheme() {
-  if (localStorage.getItem("theme") == "dark") {
-    changeThemeBtn.classList.remove("darkTheme");
-    body.classList.remove("dark");
-    localStorage.setItem("theme", "white");
+  if (localStorage.getItem("theme") === "dark") {
+    changeThemeBtn.classList.toggle('darkTheme');
+    body.classList.toggle("dark");
+    localStorage.setItem("theme", "light");
   } else {
-    changeThemeBtn.classList.add("darkTheme");
-    body.classList.add("dark");
+    changeThemeBtn.classList.toggle('darkTheme');
+    body.classList.toggle("dark");
     localStorage.setItem("theme", "dark");
   }
 }
 
 let searchBtn = document.querySelector(".search button");
-let loader = document.querySelector(".loader");
+searchBtn.addEventListener("click", searchMovie);
 
-searchBtn.addEventListener("click", function (event) {
-  event.preventDefault();
-  searchMovie();
-});
+let loader = document.querySelector('.loader');
 
-document.addEventListener("keydown", function (event) {
-  if (event.key === "Enter") {
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') {
     event.preventDefault();
     searchMovie();
   }
@@ -39,81 +36,124 @@ async function searchMovie() {
   loader.style.display = "block";
 
   let searchText = document.querySelector(".search input").value;
+  console.log(searchText);
 
   let response = await sendRequest("https://www.omdbapi.com/", "GET", {
-    apikey: "ee82f70e",
-    t: searchText,
+    "apikey": "ee82f70e",
+    "t": searchText
   });
 
-  if (response.Response == "False") {
+  if (response.Response === "False") { 
     loader.style.display = "none";
     alert(response.Error);
-} else {
+  } else {
     let main = document.querySelector(".main");
     main.style.display = "block";
+    
     let movieTitle = document.querySelector(".movieTitle h2");
     movieTitle.innerHTML = response.Title;
-    let movieImg = document.querySelector(".movieImg");
-    movieImg.style.backgroundImage = `url(${response.Poster})`;
 
-    console.log(response)
+    let movieIMG = document.querySelector(".movieIMG");
+    movieIMG.style.backgroundImage = `url(${response.Poster})`;
 
-    let detailsList = [
-        "Genre",
-        "Actors",
-        "Country",
-        "Director",
-        "Language",
-        "Plot",
-        "Released",
-        "Runtime",
-        "imdbRating",
-    ];
+    let dataList = ["Actors", "Awards", "Country", "Director", "Genre", "Language", "Plot", "Released", "Runtime", "Type", "Writer", "imdbRating"];
     let movieInfo = document.querySelector(".movieInfo");
     movieInfo.innerHTML = "";
 
-    for (let i = 0; i < detailsList.length; i++) {
-        let param = detailsList[i];
+    dataList.forEach(param => {
+      let value = response[param];
+      let desc = `<div class="desc darckBg"> 
+                    <div class="title">${param}</div> 
+                    <div class="value">${value ? value : "N/A"}</div> 
+                 </div>`;
+      movieInfo.innerHTML += desc;
+    });
 
-        let desc = document.createElement("div");
-        desc.className = "desc darkBg";
-
-        let title = document.createElement("div");
-        title.className = "title";
-        title.innerHTML = param;
-
-        let value = document.createElement("div");
-        value.className = "value";
-        value.innerHTML = response[param];
-
-        desc.appendChild(title);
-        desc.appendChild(value);
-        movieInfo.appendChild(desc);
-    }
     loader.style.display = "none";
+    searchSimilarMovies(searchText);
+  }
+  console.log(response);
 }
+
+async function searchSimilarMovies(title) {
+  let similarMovie = await sendRequest("https://www.omdbapi.com/", "GET", {
+    "apikey": "ee82f70e",
+    "s": title
+  });
+
+  if (similarMovie.Response === "False") {
+    document.querySelector(".similarMovieTitle h2").style.display = "none";
+    document.querySelector(".similarMovie").style.display = "none";
+  } else {
+    document.querySelector(".similarMovieTitle h2").innerHTML = `Похожие фильмы: ${similarMovie.totalResults}`;
+    showSimilarMovies(similarMovie.Search);
+    console.log(similarMovie);
+  }
 }
+
+
+function showSimilarMovies(movies) {
+  let similarMovie = document.querySelector(".similarMovie");
+  let similarMovieTitle = document.querySelector(".similarMovieTitle h2");
+  similarMovie.innerHTML = ""; 
+
+  movies.forEach(movie => {
+    similarMovie.innerHTML += `<div class="similarMovieCard" style="background-image:url(${movie.Poster})">
+      <div class="favStar" data-title="${movie.Title}" data-poster="${movie.Poster}" data-id="${movie.imdbID}"></div>
+      <div class="similarMovieText">${movie.Title}</div>
+    </div>`;
+  });
+
+  similarMovie.style.display = "grid";
+  similarMovieTitle.style.display = "block";
+  actiactivateFavBtns();
+}
+
+
+function actiactivateFavBtns(){
+  document.querySelectorAll(".favStar").forEach(elem=>{
+    elem.addEventListener("click", addToFav)
+  })
+}
+
+function addToFav() {
+  let favBtn = event.target
+  let title = favBtn.getAttribute("data-title");
+  let poster = favBtn.getAttribute("data-poster");
+  let idmbID = favBtn.getAttribute("data-title");
+
+}
+
+let fav = localStorage.getItem("favs");
+if(!favs) {
+  favs = [];
+  localStorage.setItem("favs", JSON.stringify(favs));
+} else {
+  JSON.parse(favs);
+}
+
 
 async function sendRequest(url, method, data) {
-  if (method == "POST") {
+  if (method === "POST") {
     let response = await fetch(url, {
       method: "POST",
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     });
 
-    response = JSON.parse(response);
-    return response;
-  } else if (method == "GET") {
+    let responseData = await response.json();
+    return responseData;
+  } else if (method === "GET") {
     url = url + "?" + new URLSearchParams(data);
     let response = await fetch(url, {
-      method: "GET",
+      method: "GET"
     });
 
-    response = await response.json();
-    return response;
+    let responseData = await response.json();
+    return responseData;
   }
 }
+
