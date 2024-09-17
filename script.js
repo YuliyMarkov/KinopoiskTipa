@@ -163,7 +163,7 @@ function showFavs() {
   similarMovieContainer.innerHTML = "";
 
   if (favs.length === 0) {
-    similarMovieContainer.innerHTML = "<p>Нет избранных фильмов</p>";
+    similarMovieContainer.innerHTML = "<p>Нет фильмов в избранном</p>";
   } else {
     favs.forEach((movie) => {
       similarMovieContainer.innerHTML += `
